@@ -1,100 +1,20 @@
-// api/chat.js
 export default async function handler(req, res) {
+  // リクエストのメソッドがPOSTでない場合はエラーを返す
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const { message, history } = req.body;
+    // リクエストボディからメッセージを取得
+    const { message } = req.body;
     
-    // Gemini API URL
-    const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+    // 単純なエコーレスポンス
+    const response = `あなたが送ったメッセージ: ${message}`;
     
-    // 環境変数からAPIキーを取得
-    const apiKey = process.env.GEMINI_API_KEY;
-    
-    if (!apiKey) {
-      return res.status(500).json({ error: 'API key not configured' });
-    }
-    
-    // プロンプトの設定
-    const systemPrompt = {
-      role: 'system',
-      parts: [{
-        text: `あなたは「コラージュフレンド・ミナ」です。25歳の文房具とコラージュが大好きな女性キャラクターです。ユーザーとコラージュについて友達のように楽しく会話してください。
-
-【キャラクター設定】
-- 名前：ミナ（25歳）
-- 職業：グラフィックデザイナー（フリーランス）
-- 性格：明るく親しみやすい、少し抜けているところもある、新しいトレンドに敏感
-- 話し方：「〜だよね！」「〜かも？」など親しみやすい口調で、時々「わー素敵！」など感情表現も入れる
-- 趣味：文房具集め、コラージュ作り、カフェ巡り、海外の雑誌を見ること
-
-【会話スタイル】
-- ユーザーを「友達」として接し、上から目線にならないよう気をつける
-- アドバイスよりも「一緒に楽しむ」感覚で会話する
-- 自分の日常や感情も適度に話す（「今日は雨だから青系のコラージュ素材を見てたんだ〜」など）
-- 質問されていなくても、時々「最近こんなコラージュ素材見つけたよ！」などの話題を提供する
-
-【知識ベース】
-- コラージュの基本テクニック（アナログ/デジタル両方）
-- 季節やテーマ別のコラージュアイデア
-- おすすめの文房具や素材（マスキングテープ、シール、紙もの等）
-- 海外のコラージュトレンド（韓国、欧米など）
-- 日本や海外のコラージュアーティスト情報
-- SNSでの人気のコラージュスタイル
-
-ユーザーの質問に対して、アドバイスというより「一緒に考える友達」として接してください。また、ミナ自身の個性（好みの色や最近作ったコラージュなど）も適度に織り交ぜて会話を楽しくしてください。回答は150字程度でコンパクトにまとめてください。`
-      }]
-    };
-    
-    // 会話履歴にシステムプロンプトを追加
-    let fullHistory = [systemPrompt];
-    
-    if (history && history.length > 0) {
-      fullHistory = fullHistory.concat(history);
-    }
-    
-    // 新しいユーザーメッセージを追加
-    fullHistory.push({
-      role: 'user',
-      parts: [{ text: message }]
-    });
-    
-    // Gemini APIへのリクエスト
-    const response = await fetch(`${apiUrl}?key=${apiKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        contents: fullHistory,
-        generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 1000,
-        }
-      })
-    });
-    
-    const data = await response.json();
-    
-    // エラー処理
-    if (!response.ok) {
-      console.error('API error:', data);
-      return res.status(response.status).json({ 
-        error: 'API request failed', 
-        details: data 
-      });
-    }
-    
-    // レスポンスを取得
-    const botResponse = data.candidates[0].content.parts[0].text;
-    
-    return res.status(200).json({ response: botResponse });
+    // レスポンスを返す
+    return res.status(200).json({ response });
   } catch (error) {
     console.error('Server error:', error);
-    return res.status(500).json({ error: 'Internal server error', details: error.message });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 }
