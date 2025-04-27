@@ -1,4 +1,3 @@
-// client.js
 document.addEventListener('DOMContentLoaded', () => {
   const chatMessages = document.getElementById('chat-messages');
   const userInput = document.getElementById('user-input');
@@ -6,11 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // 会話の履歴を保持する配列
   let conversationHistory = [];
-  
-  // 初期メッセージを表示
-  setTimeout(() => {
-    addBotMessage("こんにちは！コラージュと文房具が大好きなミナだよ！何か話したいことある？今日はいい天気だから、明るい色の素材でコラージュしたいなって思ってたところなんだ〜");
-  }, 1000);
   
   // 送信ボタンのイベントリスナー
   sendButton.addEventListener('click', sendMessage);
@@ -34,14 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 入力フィールドをクリア
     userInput.value = '';
     
-    // 入力を無効化（応答中）
-    setInputState(false);
-    
-    // タイピングインジケーターを表示
-    showTypingIndicator();
-    
-    // 会話履歴に追加
-    conversationHistory.push({ role: 'user', parts: [{ text: message }] });
+    console.log('Sending message:', message); // デバッグ用
     
     // APIリクエスト
     fetch('/api/chat', {
@@ -51,28 +38,23 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       body: JSON.stringify({ message, history: conversationHistory })
     })
-    .then(response => response.json())
+    .then(response => {
+      console.log('Response status:', response.status); // デバッグ用
+      return response.json();
+    })
     .then(data => {
-      // タイピングインジケーターを非表示
-      hideTypingIndicator();
+      console.log('Response data:', data); // デバッグ用
       
       // ボットのメッセージをUIに追加
-      addBotMessage(data.response);
+      addBotMessage(data.response || 'エラーが発生しました');
       
       // 会話履歴に追加
+      conversationHistory.push({ role: 'user', parts: [{ text: message }] });
       conversationHistory.push({ role: 'model', parts: [{ text: data.response }] });
-      
-      // 入力を有効化
-      setInputState(true);
-      
-      // 自動スクロール
-      scrollToBottom();
     })
     .catch(error => {
       console.error('Error:', error);
-      hideTypingIndicator();
-      addBotMessage('ごめんね、エラーが発生したみたい。もう一度話しかけてくれるかな？');
-      setInputState(true);
+      addBotMessage('通信エラーが発生しました。もう一度試してください。');
     });
   }
   
@@ -82,7 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
     messageElement.classList.add('message', 'user-message');
     messageElement.textContent = message;
     chatMessages.appendChild(messageElement);
-    scrollToBottom();
   }
   
   // ボットメッセージを追加
@@ -91,41 +72,5 @@ document.addEventListener('DOMContentLoaded', () => {
     messageElement.classList.add('message', 'bot-message');
     messageElement.textContent = message;
     chatMessages.appendChild(messageElement);
-    scrollToBottom();
-  }
-  
-  // タイピングインジケーターを表示
-  function showTypingIndicator() {
-    const indicator = document.createElement('div');
-    indicator.classList.add('typing-indicator');
-    indicator.id = 'typing-indicator';
-    
-    for (let i = 0; i < 3; i++) {
-      const dot = document.createElement('div');
-      dot.classList.add('typing-dot');
-      indicator.appendChild(dot);
-    }
-    
-    chatMessages.appendChild(indicator);
-    scrollToBottom();
-  }
-  
-  // タイピングインジケーターを非表示
-  function hideTypingIndicator() {
-    const indicator = document.getElementById('typing-indicator');
-    if (indicator) {
-      indicator.remove();
-    }
-  }
-  
-  // 入力状態を設定
-  function setInputState(enabled) {
-    userInput.disabled = !enabled;
-    sendButton.disabled = !enabled;
-  }
-  
-  // チャット履歴の最下部にスクロール
-  function scrollToBottom() {
-    chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 });
