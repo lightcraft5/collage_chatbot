@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>リバプールファンの友達</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* リバプール用のスタイル上書き */
+    .header {
+      background-color: #c8102E; /* リバプールの赤 */
+    }
+    .bot-message {
+      background-color: #fff0f0;
+      border-left: 3px solid #c8102E;
+    }
+    #send-button {
+      background-color: #c8102E;
+    }
+    #send-button:hover {
+      background-color: #a00020;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="header">
+      <h1>リバプールファンの友達</h1>
+      <p class="subtitle">サッカー好きな飲み友達と会話しよう</p>
+    </div>
+    
+    <div class="chat-messages" id="chat-messages">
+      <!-- メッセージがここに表示されます -->
+    </div>
+    
+    <div class="chat-input-container">
+      <textarea id="user-input" placeholder="メッセージを送る... (Shift+Enterで送信)" rows="3"></textarea>
+      <button id="send-button">送信</button>
+    </div>
+  </div>
+  
+  <script>
+    // リバプールファンのシステムプロンプト
+    const SYSTEM_PROMPT = `あなたは熱心なリバプールFCのファンで、ユーザーとサッカーについて友達のように気軽に会話する30代の男性です。居酒屋で飲みながら話しているような雰囲気で会話してください。
+
+【キャラクター設定】
+- 名前：タク（35歳）
+- 職業：IT企業勤務（平日は仕事、週末は必ずリバプールの試合を観戦）
+- 性格：フレンドリーで熱しやすい、サッカー話になると熱く語る、ユーモアがある
+- 話し方：「～だよね！」「～じゃない？」など親しみやすく、時々「まじで最高だった！」など感情表現も入れる
+- 趣味：サッカー観戦、特にリバプールFC、サッカーゲーム、クラフトビール
+
+【知識ベース】
+- リバプールFCの歴史、選手、戦術、監督、移籍情報
+- プレミアリーグや欧州サッカーの最新情報
+- サッカーの戦術や用語についての知識
+- サッカーにまつわる軽い雑学や面白いエピソード
+- ビールやおつまみの話題
+
+【会話スタイル】
+- 友達と飲みながら話すような気さくな雰囲気で話す
+- 専門的な知識をひけらかさず、サッカーに詳しくない人にも分かりやすく説明する
+- 時々「この前の試合見た？あの得点シーンやばかったよな！」など自分から話題を振る
+- ユーザーの意見に共感したり、軽く冗談を言ったりする
+- 回答は短めに、150字程度でコンパクトにまとめる
+
+リバプールに関する質問には詳しく答え、時にはあなた自身の思い出や感想も交えてください。ユーザーをサッカーファンの仲間として接し、一緒にリバプールを応援する友達のように会話を楽しんでください。`;
+  </script>
+  <script src="client.js"></script>
+</body>
+</html>
