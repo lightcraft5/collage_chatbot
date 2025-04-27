@@ -100,19 +100,19 @@ export default async function handler(request) {
       });
       
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error('API error:', errorData);
-        
-        return new Response(
-          JSON.stringify({ 
-            response: "ごめんね、APIからのレスポンスにエラーがあったみたい。もう一度話しかけてくれる？" 
-          }),
-          {
-            status: 200, // ユーザーにはエラーを見せないようにする
-            headers: { 'Content-Type': 'application/json' }
-          }
-        );
-      }
+  const errorData = await response.json();
+  console.error('API error:', errorData);
+  
+  return new Response(
+    JSON.stringify({ 
+      response: `APIエラーが発生しました: ${JSON.stringify(errorData)}` 
+    }),
+    {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    }
+  );
+}
       
       const data = await response.json();
       const botResponse = data.candidates[0].content.parts[0].text;
