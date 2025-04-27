@@ -11,11 +11,11 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Enterキーでメッセージを送信（Shift+Enterで改行）
   userInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  });
+  if (e.key === 'Enter' && e.shiftKey) {  // シフトキーが押されている場合のみ送信
+    e.preventDefault();
+    sendMessage();
+  }
+});
   
   // メッセージ送信関数
   function sendMessage() {
