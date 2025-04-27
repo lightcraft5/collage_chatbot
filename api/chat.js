@@ -83,4 +83,71 @@ export default async function handler(request) {
     
     try {
       // Gemini APIへのリクエスト
-      const response = await fetch(`${apiUrl}?key=${a
+      const response = await fetch(`${apiUrl}?key=${apiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          contents: fullHistory,
+          generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 1000,
+          }
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('API error:', errorData);
+        
+        return new Response(
+          JSON.stringify({ 
+            response: "ごめんね、APIからのレスポンスにエラーがあったみたい。もう一度話しかけてくれる？" 
+          }),
+          {
+            status: 200, // ユーザーにはエラーを見せないようにする
+            headers: { 'Content-Type': 'application/json' }
+          }
+        );
+      }
+      
+      const data = await response.json();
+      const botResponse = data.candidates[0].content.parts[0].text;
+      
+      return new Response(
+        JSON.stringify({ response: botResponse }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+    } catch (apiError) {
+      console.error('API call error:', apiError);
+      
+      return new Response(
+        JSON.stringify({ 
+          response: "ごめんね、APIとの通信でエラーが発生したみたい。もう一度試してみてくれる？" 
+        }),
+        {
+          status: 200, // ユーザーにはエラーを見せないようにする
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+    }
+  } catch (error) {
+    console.error('Server error:', error);
+    
+    return new Response(
+      JSON.stringify({ 
+        response: "ごめんね、サーバーでエラーが発生したみたい。後でもう一度試してみてね！" 
+      }),
+      {
+        status: 200, // ユーザーにはエラーを見せないようにする
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
+}
