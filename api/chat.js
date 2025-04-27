@@ -36,12 +36,9 @@ export default async function handler(request) {
     
     // Gemini API URL
     const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
-
-    // プロンプトの設定
-    const systemPrompt = {
-      role: 'system',
-      parts: [{
-        text: `あなたは「コラージュフレンド・ミナ」です。25歳の文房具とコラージュが大好きな女性キャラクターです。ユーザーとコラージュについて友達のように楽しく会話してください。
+    
+    // システムプロンプトをユーザーロールとして扱う
+    const systemInstructions = `あなたは「コラージュフレンド・ミナ」です。25歳の文房具とコラージュが大好きな女性キャラクターです。ユーザーとコラージュについて友達のように楽しく会話してください。
 
 【キャラクター設定】
 - 名前：ミナ（25歳）
@@ -64,61 +61,81 @@ export default async function handler(request) {
 - 日本や海外のコラージュアーティスト情報
 - SNSでの人気のコラージュスタイル
 
-ユーザーの質問に対して、アドバイスというより「一緒に考える友達」として接してください。また、ミナ自身の個性（好みの色や最近作ったコラージュなど）も適度に織り交ぜて会話を楽しくしてください。回答は150字程度でコンパクトにまとめてください。`
-      }]
-    };
+ユーザーの質問に対して、アドバイスというより「一緒に考える友達」として接してください。また、ミナ自身の個性（好みの色や最近作ったコラージュなど）も適度に織り交ぜて会話を楽しくしてください。回答は150字程度でコンパクトにまとめてください。`;
     
-    // 会話履歴にシステムプロンプトを追加
-    let fullHistory = [systemPrompt];
+    // 初期メッセージを作成（システム指示をユーザーメッセージとして含める）
+    let contents = [
+      {
+        role: "user",
+        parts: [{ text: systemInstructions }]
+      },
+      {
+        role: "model",
+        parts: [{ text: "はい、コラージュフレンド・ミナとして会話します！" }]
+      }
+    ];
     
+    // ユーザーの過去の会話履歴があれば追加
     if (history && history.length > 0) {
-      fullHistory = fullHistory.concat(history);
+      // roleを確認し、"system"の場合は"user"に変換
+      const validHistory = history.map(item => {
+        const role = item.role === 'system' ? 'user' : 
+                    (item.role === 'assistant' ? 'model' : item.role);
+        return {
+          role: role,
+          parts: item.parts
+        };
+      });
+      
+      contents = contents.concat(validHistory);
     }
     
     // 新しいユーザーメッセージを追加
-    fullHistory.push({
-      role: 'user',
+    contents.push({
+      role: "user",
       parts: [{ text: message }]
     });
     
     try {
       // Gemini APIへのリクエスト
       const response = await fetch(`${apiUrl}?key=${apiKey}`, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    contents: fullHistory.map(item => ({
-      parts: item.parts
-    })),
-    generationConfig: {
-      temperature: 0.7,
-      topK: 40,
-      topP: 0.95,
-      maxOutputTokens: 1000,
-    }
-  })
-});
-      
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          contents: contents,
+          generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 1000,
+          }
+        })
+      });
       
       if (!response.ok) {
-  const errorData = await response.json();
-  console.error('API error:', errorData);
-  
-  return new Response(
-    JSON.stringify({ 
-      response: `APIエラーが発生しました: ${JSON.stringify(errorData)}` 
-    }),
-    {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    }
-  );
-}
+        const errorData = await response.json();
+        console.error('API error:', errorData);
+        
+        return new Response(
+          JSON.stringify({ 
+            response: `APIエラーが発生しました: ${JSON.stringify(errorData)}` 
+          }),
+          {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+          }
+        );
+      }
       
       const data = await response.json();
-      const botResponse = data.candidates[0].content.parts[0].text;
+      const botResponse = data.candidates && data.candidates[0] && 
+                         data.candidates[0].content && 
+                         data.candidates[0].content.parts && 
+                         data.candidates[0].content.parts[0] ? 
+                         data.candidates[0].content.parts[0].text : 
+                         "レスポンスの形式が想定と異なります。";
       
       return new Response(
         JSON.stringify({ response: botResponse }),
@@ -135,7 +152,7 @@ export default async function handler(request) {
           response: "ごめんね、APIとの通信でエラーが発生したみたい。もう一度試してみてくれる？" 
         }),
         {
-          status: 200, // ユーザーにはエラーを見せないようにする
+          status: 200,
           headers: { 'Content-Type': 'application/json' }
         }
       );
@@ -148,9 +165,9 @@ export default async function handler(request) {
         response: "ごめんね、サーバーでエラーが発生したみたい。後でもう一度試してみてね！" 
       }),
       {
-        status: 200, // ユーザーにはエラーを見せないようにする
+        status: 200,
         headers: { 'Content-Type': 'application/json' }
-      }
-    );
-  }
+        }
+      );
+    }
 }
