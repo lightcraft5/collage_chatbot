@@ -35,8 +35,8 @@ export default async function handler(request) {
     }
     
     // Gemini API URL
-    const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
-    
+    const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+
     // プロンプトの設定
     const systemPrompt = {
       role: 'system',
@@ -84,20 +84,23 @@ export default async function handler(request) {
     try {
       // Gemini APIへのリクエスト
       const response = await fetch(`${apiUrl}?key=${apiKey}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          contents: fullHistory,
-          generationConfig: {
-            temperature: 0.7,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 1000,
-          }
-        })
-      });
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    contents: fullHistory.map(item => ({
+      parts: item.parts
+    })),
+    generationConfig: {
+      temperature: 0.7,
+      topK: 40,
+      topP: 0.95,
+      maxOutputTokens: 1000,
+    }
+  })
+});
+      
       
       if (!response.ok) {
   const errorData = await response.json();
