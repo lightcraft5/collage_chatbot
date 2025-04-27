@@ -1,0 +1,147 @@
+/* styles.css */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Hiragino Kaku Gothic ProN', 'メイリオ', sans-serif;
+  background-color: #f9f5f6;
+  color: #333;
+  line-height: 1.6;
+}
+
+.chat-container {
+  max-width: 800px;
+  margin: 20px auto;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 90vh;
+}
+
+.header {
+  padding: 20px;
+  background-color: #fd7e99;
+  color: white;
+  text-align: center;
+}
+
+.header h1 {
+  font-size: 1.8rem;
+  margin-bottom: 5px;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.message {
+  max-width: 80%;
+  padding: 12px 16px;
+  border-radius: 18px;
+  position: relative;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.user-message {
+  align-self: flex-end;
+  background-color: #e0f7fa;
+  border-radius: 18px 18px 0 18px;
+}
+
+.bot-message {
+  align-self: flex-start;
+  background-color: #fff4f8;
+  border-radius: 18px 18px 18px 0;
+  border-left: 3px solid #fd7e99;
+}
+
+.chat-input-container {
+  display: flex;
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-top: 1px solid #eaeaea;
+}
+
+#user-input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 16px;
+  resize: none;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+#user-input:focus {
+  border-color: #fd7e99;
+}
+
+#send-button {
+  margin-left: 10px;
+  background-color: #fd7e99;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 0 20px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+#send-button:hover {
+  background-color: #ff6b93;
+}
+
+.typing-indicator {
+  display: flex;
+  padding: 12px 16px;
+  background-color: #fff4f8;
+  border-radius: 18px 18px 18px 0;
+  align-self: flex-start;
+  width: fit-content;
+}
+
+.typing-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #fd7e99;
+  border-radius: 50%;
+  margin: 0 2px;
+  display: inline-block;
+  animation: typingAnimation 1.5s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.typing-dot:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+@keyframes typingAnimation {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
