@@ -8,10 +8,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // 会話の履歴を保持する配列
   let conversationHistory = [];
   
-  // 初期メッセージを表示（すべてのボットで共通）
+  // コラージュ作品の画像URLを一時保存する変数
+  let currentArtworkURL = null;
+  
+  // 初期メッセージを表示
   setTimeout(() => {
-    // シンプルな初期メッセージ（どのボットでも使えるもの）
-    const initialMessage = "こんにちは！気軽に話しかけてください。";
+    const initialMessage = "こんにちは、リサさん。コラージュの森へようこそ。あなたの創作の旅をサポートします。コラージュについて話してみましょうか？または、作品の写真を共有してくれても嬉しいです。";
     addBotMessage(initialMessage);
   }, 1000);
   
@@ -25,6 +27,30 @@ document.addEventListener('DOMContentLoaded', () => {
       sendMessage();
     }
   });
+  
+  // 画像をアップロードする機能を追加（将来の実装のためのプレースホルダー）
+  // 実際の実装では、この部分をHTML側にも追加する必要があります
+  function setupImageUpload() {
+    const uploadButton = document.createElement('button');
+    uploadButton.className = 'upload-button';
+    uploadButton.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"></path></svg>';
+    uploadButton.title = '作品の写真をアップロード';
+    
+    const inputContainer = document.querySelector('.chat-input-container');
+    inputContainer.insertBefore(uploadButton, userInput);
+    
+    // 画像アップロード機能（将来実装）
+    uploadButton.addEventListener('click', () => {
+      alert('申し訳ありませんが、画像アップロード機能は現在開発中です。将来のアップデートをお待ちください。');
+      
+      // 実際の実装では、ここでファイル選択ダイアログを表示し、
+      // 選択された画像をサーバーにアップロードまたはBase64エンコードして
+      // チャットに表示する処理を行います。
+    });
+  }
+  
+  // 将来の実装のためにコメントアウトしておく
+  // setupImageUpload();
   
   // メッセージ送信関数
   function sendMessage() {
@@ -63,8 +89,9 @@ document.addEventListener('DOMContentLoaded', () => {
       // タイピングインジケーターを非表示
       hideTypingIndicator();
       
-      // ボットのメッセージをUIに追加
-      addBotMessage(data.response);
+      // ボットのメッセージをUIに追加（改行とURLを処理）
+      const formattedResponse = formatBotResponse(data.response);
+      addBotMessage(formattedResponse);
       
       // 会話履歴に追加
       conversationHistory.push({ role: 'model', parts: [{ text: data.response }] });
@@ -83,6 +110,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
+  // ボットの返信を整形する関数（URLをリンクに変換、改行を保持）
+  function formatBotResponse(text) {
+    // URLをクリック可能なリンクに変換
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const withLinks = text.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+    
+    // 改行を<br>タグに変換
+    return withLinks.replace(/\n/g, '<br>');
+  }
+  
   // ユーザーメッセージを追加
   function addUserMessage(message) {
     const messageElement = document.createElement('div');
@@ -96,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function addBotMessage(message) {
     const messageElement = document.createElement('div');
     messageElement.classList.add('message', 'bot-message');
-    messageElement.textContent = message;
+    messageElement.innerHTML = message; // HTMLタグを許可（リンクや改行のため）
     chatMessages.appendChild(messageElement);
     scrollToBottom();
   }
@@ -134,5 +171,27 @@ document.addEventListener('DOMContentLoaded', () => {
   // チャット履歴の最下部にスクロール
   function scrollToBottom() {
     chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+  
+  // 画像が添付された場合の処理（将来実装）
+  function handleImageAttachment(imageData) {
+    currentArtworkURL = imageData;
+    
+    // 画像プレビューを表示
+    const previewContainer = document.createElement('div');
+    previewContainer.classList.add('image-preview-container');
+    
+    const imagePreview = document.createElement('img');
+    imagePreview.src = imageData;
+    imagePreview.classList.add('image-preview');
+    imagePreview.alt = 'コラージュ作品';
+    
+    previewContainer.appendChild(imagePreview);
+    chatMessages.appendChild(previewContainer);
+    
+    // 自動メッセージを追加
+    setTimeout(() => {
+      addBotMessage("素敵な作品ですね。この作品について何か特定のフィードバックがほしいですか？あるいは、どのような思いでこの作品を作られたのか教えていただけますか？");
+    }, 1000);
   }
 });
