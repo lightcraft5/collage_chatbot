@@ -199,3 +199,84 @@ body {
     max-width: 85%;
   }
 }
+
+/* 既存のスタイルシートに以下のスタイルを追加します */
+
+/* マークダウン関連のスタイル */
+.bot-message strong {
+  font-weight: bold;
+  color: #5e517f; /* 紫色の強調 */
+}
+
+.bot-message em {
+  font-style: italic;
+  color: #666;
+}
+
+.bot-message ul {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.bot-message li {
+  margin: 5px 0;
+  position: relative;
+  list-style-type: none;
+  padding-left: 15px;
+}
+
+.bot-message li:before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #7e74b9;
+}
+
+/* リンクのスタイル */
+.bot-message a {
+  color: #7e74b9;
+  text-decoration: none;
+  border-bottom: 1px dashed #7e74b9;
+  transition: all 0.2s ease;
+}
+
+.bot-message a:hover {
+  color: #6a63a0;
+  border-bottom: 1px solid #6a63a0;
+}
+
+/* 段落の間隔 */
+.bot-message p {
+  margin: 10px 0;
+}
+
+/* ブロッククォートのスタイル（将来的な拡張用） */
+.bot-message blockquote {
+  border-left: 3px solid #d0c9f0;
+  margin: 10px 0;
+  padding-left: 15px;
+  color: #666;
+  font-style: italic;
+}
+
+/* コードブロックのスタイル（将来的な拡張用） */
+.bot-message code {
+  font-family: monospace;
+  background-color: #f5f2ff;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+.bot-message pre {
+  background-color: #f5f2ff;
+  padding: 10px;
+  border-radius: 5px;
+  overflow-x: auto;
+  margin: 10px 0;
+}
+
+.bot-message pre code {
+  background-color: transparent;
+  padding: 0;
+}
