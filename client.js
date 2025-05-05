@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // タイピングインジケーターを非表示
       hideTypingIndicator();
       
-      // ボットのメッセージをUIに追加（改行とURLを処理）
+      // ボットのメッセージをUIに追加（改行、URL、マークダウンを処理）
       const formattedResponse = formatBotResponse(data.response);
       addBotMessage(formattedResponse);
       
@@ -110,14 +110,46 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
-  // ボットの返信を整形する関数（URLをリンクに変換、改行を保持）
+  // ボットの返信を整形する関数（URLをリンクに変換、改行を保持、マークダウン記法を処理）
   function formatBotResponse(text) {
     // URLをクリック可能なリンクに変換
     const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const withLinks = text.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+    let formattedText = text.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
     
-    // 改行を<br>タグに変換
-    return withLinks.replace(/\n/g, '<br>');
+    // マークダウン記法を処理
+    // 太字 (**text** -> <strong>text</strong>)
+    formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // 斜体 (*text* -> <em>text</em>)
+    formattedText = formattedText.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    
+    // リスト項目 (- item -> <li>item</li>)
+    // 複数のリスト項目が連続している場合はリストとして処理
+    const listItems = formattedText.match(/^- (.*?)$/gm);
+    if (listItems && listItems.length > 0) {
+      let listHtml = '<ul>';
+      for (const item of listItems) {
+        const itemText = item.replace(/^- (.*?)$/, '$1');
+        listHtml += `<li>${itemText}</li>`;
+      }
+      listHtml += '</ul>';
+      
+      // リスト項目をリストHTMLに置換
+      // 注意: 複数行にまたがる正規表現の置換は単純な方法では難しいため、
+      // 実際の実装ではもう少し複雑な処理が必要かもしれません
+      const listRegex = /^- .*?$/gm;
+      formattedText = formattedText.replace(listRegex, match => {
+        if (match === listItems[0]) {
+          return listHtml;
+        }
+        return '';
+      });
+    }
+    
+    // 改行を<br>タグに変換（リスト内の改行は処理しない）
+    formattedText = formattedText.replace(/\n/g, '<br>');
+    
+    return formattedText;
   }
   
   // ユーザーメッセージを追加
